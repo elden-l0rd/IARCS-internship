@@ -1,0 +1,41 @@
+\section*{Week 4: Refining the corpus and model}
+\addcontentsline{toc}{section}{Week 4: Refining the corpus and model}
+
+Improvement 1: Removed duplicate words\\
+\begin{table}[h]
+    \caption{Extracting keywords v2.0}
+    \label{crouch}
+    \begin{tabularx}{\textwidth}{p{0.1\textwidth}XX}
+        \toprule
+        \textbf{Dataset} & \textbf{Original text} & \textbf{Processed text} \\
+        \midrule
+        df\_train[0] &
+        Business Relationships Adversaries may gather information about the victim's business relationships that can be used during targeting. Information about an organization's business relationships may include a variety of details, including second or third-party organizations/domains (ex: managed service providers, contractors, etc.) that have connected (and potentially elevated) network access. This information may also reveal supply chains and shipment paths for the victim's hardware and software resources.\verb|<br><br>|Adversaries may gather this information in various ways, such as direct elicitation via [Phishing for Information]\nolinkurl{(https://attack.mitre.org/techniques/T1598)}. Information about business relationships may also be exposed to adversaries via online or other accessible data sets (ex: [Social Media]\nolinkurl{(https://attack.mitre.org/techniques/T1593/001)} or [Search Victim-Owned Websites]\nolinkurl{(https://attack.mitre.org/techniques/T1594)}).(Citation: ThreatPost Broadvoice Leak) Gathering this information may reveal opportunities for other forms of reconnaissance (ex: [Phishing for Information]\nolinkurl{(https://attack.mitre.org/techniques/T1598)} or [Search Open Websites/Domains]\nolinkurl{(https://attack.mitre.org/techniques/T1593)}), establishing operational resources (ex: [Establish Accounts]\nolinkurl{(https://attack.mitre.org/techniques/T1585)} or [Compromise Accounts]\nolinkurl{(https://attack.mitre.org/techniques/T1586)}), and/or initial access (ex: [Supply Chain Compromise]\nolinkurl{(https://attack.mitre.org/techniques/T1195)}, [Drive-by Compromise]\nolinkurl{(https://attack.mitre.org/techniques/T1189)}, or [Trusted Relationship]\nolinkurl{(https://attack.mitre.org/techniques/T1199)}).\verb|<br><br>|Much of this activity may have a very high occurrence and associated false positive rate, as well as potentially taking place outside the visibility of the target organization, making detection difficult for defenders.\verb|<br><br>|Detection efforts may be focused on related stages of the adversary lifecycle, such as during Initial Access.
+        &
+        ['websites', 'associate', 'contractor', 'supply', 'path', 'online', 'variety', 'operational', 'this', 'phishing', 'gathering', 'via', 'search', 'use', 'adversary', 'open', 'take', 'initial', 'drive', 'victim', 'include', 'etc', 'manage', 'potentially', 'trusted', 'access', 'connect', 'target', 'resource', 'elicitation', 'hardware', 'organization', 'direct', 'place', 'rate', 'elevate', 'network', 'service', 'well', 'domains', 'second', 'activity', 'gather', 'way', 'establish', 'stage', 'provider', 'compromise', 'data', 'defender', 'relationship', 'false', 'chain', 'reconnaissance', 'accounts', 'media', 'social', 'relationships', 'outside', 'information', 'effort', 'domain', 'detail', 'related', 'business', 'software', 'various', 'also', 'opportunity', 'lifecycle', 'ex', 'set', 'owned', 'positive', 'detection', 'third', 'accessible', 'party', 'high', 'difficult', 'occurrence', 'make', 'shipment', 'visibility', 'focus', 'reveal', 'expose', 'form'] \\
+        \midrule
+        df\_train[2] &
+        Symmetric Cryptography Adversaries may employ a known symmetric encryption algorithm to conceal command and control traffic rather than relying on any inherent protections provided by a communication protocol. Symmetric encryption algorithms use the same key for plaintext encryption and ciphertext decryption. Common symmetric encryption algorithms include AES, DES, 3DES, Blowfish, and RC4.\verb|<br><br>|With symmetric encryption, it may be possible to obtain the algorithm and key from samples and use them to decode network traffic to detect malware communications signatures.\verb|<br><br>|In general, analyze network data for uncommon data flows (e.g., a client sending significantly more data than it receives from a server). Processes utilizing the network that do not normally have network communication or have never been seen before are suspicious. Analyze packet contents to detect communications that do not follow the expected protocol behavior for the port that is being used.(Citation: University of Birmingham C2)
+        &
+        ['content', 'sample', 'packet', 'know', 'obtain', 'data', 'flow', 'provide', 'with', 'uncommon', 'control', 'utilize', 'traffic', 'port', 'key', 'general', 'detect', 'de', 'algorithm', 'see', 'send', 'rc', 'follow', 'decryption', 'suspicious', 'employ', 'protection', 'processes', 'plaintext', 'cryptography', 'malware', 'ciphertext', 'inherent', 'analyze', 'never', 'conceal', 'behavior', 'use', 'in', 'signature', 'symmetric', 'command', 'common', 'possible', 'network', 'include', 'aes', 'encryption', 'protocol', 'server', 'rather', 'rely', 'blowfish', 'receives', 'des', 'expect', 'communication', 'significantly', 'normally', 'client'] \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\clearpage
+\textbf{Figuring out keywords using Microsoft's definition of STRIDE}\\\\
+
+\textbf{S:} Involves illegally accessing and then using another user's authentication information, such as username and password \\\\
+\textbf{T:} Involves the malicious modification of data. Examples include unauthorized changes made to persistent data, such as that held in a database, and the alteration of data as it flows between two computers over an open network, such as the Internet \\\\
+\textbf{R:} Associated with users who deny performing an action without other parties having any way to prove otherwise—for example, a user performs an illegal operation in a system that lacks the ability to trace the prohibited operations. Non-Repudiation refers to the ability of a system to counter repudiation threats. For example, a user who purchases an item might have to sign for the item upon receipt. The vendor can then use the signed receipt as evidence that the user did receive the package \\\\
+\textbf{I:} Involves the exposure of information to individuals who are not supposed to have access to it—for example, the ability of users to read a file that they were not granted access to, or the ability of an intruder to read data in transit between two computers \\\\
+\textbf{D:} Denial of service (DoS) attacks deny service to valid users—for example, by making a Web server temporarily unavailable or unusable. You must protect against certain types of DoS threats simply to improve system availability and reliability \\\\
+\textbf{E:} An unprivileged user gains privileged access and thereby has sufficient access to compromise or destroy the entire system. Elevation of privilege threats include those situations in which an attacker has effectively penetrated all system defenses and become part of the trusted system itself, a dangerous situation indeed \\\\
+
+\textbf{Create keywords from the definitions}\\\\
+\textbf{S:} ['authenticate', 'username', 'password', 'access'] \\\\
+\textbf{T:} ['modify', 'persistent', 'database', 'alter', 'open', 'network', 'internet'] \\\\ % persistent data as in the data that is not meant to be modified and infrequently accessed
+\textbf{R:} ['deny', 'action', 'prove', 'non-repudiation', 'item', 'sign', 'receipt', 'receive', 'evidence', 'package', 'untrace',] \\\\
+\textbf{I:} ['exposure', 'individual', 'access', 'file', 'granted', 'intruder', 'transit'] \\\\
+\textbf{D:} ['denial', 'service', 'dos', 'web', 'server', 'unavailable', 'unusable', 'system', 'available', 'reliable'] \\\\
+\textbf{E:} ['unprivileged', 'privileged', 'access', 'compromise', 'entire', 'system', 'elevation', 'penetrate', 'defenses', 'untrusted', 'trusted'] \\\\

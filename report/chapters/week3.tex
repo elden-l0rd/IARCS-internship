@@ -1,0 +1,141 @@
+\section*{Week 3: Finding better models}
+\addcontentsline{toc}{section}{Week 3: Finding better models}
+
+\textbf{Note: }I discovered an error in the code for the previous model shown in week 2 where the promising results were ultimately spurious.
+
+This is a more aggressive text preprocessing on the corpus. I first conduct a preliminary analysis of the word frequencies and trivially remove unimportant words.
+\begin{lstlisting}[frame=single]
+def basic_processing(df):
+    words_to_remove = ["e.g.", "code", "may", "attack", "system", "adversary", "Adversaries"]
+    for word in words_to_remove:
+        df['NameDesc'] = df['NameDesc'].apply(lambda x: x.replace(word, ''))
+    for word in words_to_remove:
+        df['NameDesc'] = df['NameDesc'].apply(lambda x: re.sub(r'\b' + re.escape(word) + r'\b', '', x))
+
+    # df['NameDesc'] = df['NameDesc'].str.replace(r"\b(" + "|".join(words_to_remove) + r")\b", "", regex=True)
+    df['NameDesc'] = df['NameDesc'].str.replace("<br><br>", "", regex=True)
+    df['NameDesc'] = df['NameDesc'].str.replace("\(Citation:.*?\)", "", regex=True)
+    df['NameDesc'] = df['NameDesc'].str.replace("http\S+", "", regex=True)
+    df['NameDesc'] = df['NameDesc'].str.replace("  +", " ", regex=True)
+    df['NameDesc'] = df['NameDesc'].str.replace("[^A-Za-z]", " ", regex=True)
+    return df
+
+def rm_stopwords(df):
+    stop_words = set(stopwords.words('english'))
+    df['NameDesc'] = df['NameDesc'].apply(lambda x: [word for word in x if word not in stop_words])
+    print(f"Removed stopwords:\n {df.head(3).NameDesc}\n")
+    return df
+
+def lemmatize(df):
+    lemmatizer = WordNetLemmatizer()
+    def lemmatize_tokens(tokens):
+        def get_wordnet_pos(word):
+            tag = nltk.pos_tag([word])[0][1][0].upper()
+            tag_dict = {"J": wordnet.ADJ,
+                        "N": wordnet.NOUN,
+                        "V": wordnet.VERB,
+                        "R": wordnet.ADV}
+            return tag_dict.get(tag, wordnet.NOUN)
+        lemmas = [lemmatizer.lemmatize(token, get_wordnet_pos(token)) for token in tokens]
+        return lemmas
+    df['NameDesc'] = df['NameDesc'].apply(lambda x: lemmatize_tokens(x))
+    print(f"Lemmatized words:\n {df.head(3).NameDesc}")
+    return df
+
+def text_preprocessing(df):
+    basic_processing(df)
+    df['NameDesc'] = df['NameDesc'].apply(lambda x: word_tokenize(x))
+    rm_stopwords(df)
+    lemmatize(df)
+    print("=========================================")
+    return df
+\end{lstlisting}
+
+\begin{table}[h]
+    \caption{Extracting keywords}
+    \label{crouch}
+    \begin{tabularx}{\textwidth}{p{0.1\textwidth}XX}
+        \toprule
+        \textbf{Dataset} & \textbf{Original text} & \textbf{Stemmed \& Lemmatized text} \\
+        \midrule
+        df\_train[0] &
+        Exfiltration to Cloud Storage Adversaries may exfiltrate data to a cloud storage service rather than over their primary command and control channel. Cloud storage services allow for the storage, edit, and retrieval of data from a remote cloud storage server over the Internet. Examples of cloud storage services include Dropbox and Google Docs. Exfiltration to these cloud storage services can provide a significant amount of cover to the adversary if hosts within the network are already communicating with the service. Analyze network data for uncommon data flows (e.g., a client sending significantly more data than it receives from a server) to known cloud storage services. Processes utilizing the network that do not normally have network communication or have never been seen before are suspicious. User behavior monitoring may help to detect abnormal patterns of activity.
+        &
+        [Exfiltration, Cloud, Storage, exfiltrate, data, cloud, storage, service, rather, primary, command, control, channel, Cloud, storage, service, allow, storage, edit, retrieval, data, remote, cloud, storage, server, Internet, Examples, cloud, storage, service, include, Dropbox, Google, Docs, Exfiltration, cloud, storage, service, provide, significant, amount, cover, host, within, network, already, communicate, service, Analyze, network, data, uncommon, data, flow, client, send, significantly, data, receives, server, know, cloud, storage, service, Processes, utilize, network, normally, network, communication, never, see, suspicious, User, behavior, monitoring, help, detect, abnormal, pattern, activity] \\
+        \midrule
+        df\_train[2] &
+        Runtime Data Manipulation Adversaries may modify systems in order to manipulate the data as it is accessed and displayed to an end user, thus threatening the integrity of the data.(Citation: FireEye APT38 Oct 2018)(Citation: DOJ Lazarus Sony 2018) By manipulating runtime data, adversaries may attempt to affect a business process, organizational understanding, and decision making.<br><br>Adversaries may alter application binaries used to display data in order to cause runtime manipulations. Adversaries may also conduct [Change Default File Association]\nolinkurl{(https://attack.mitre.org/techniques/T1546/001)} and [Masquerading]\nolinkurl{(https://attack.mitre.org/techniques/T1036)} to cause a similar effect. The type of modification and the impact it will have depends on the target application and process as well as the goals and objectives of the adversary. For complex systems, an adversary would likely need special expertise and possibly access to specialized software related to the system that would typically be gained through a prolonged information gathering campaign in order to have the desired impact.\verb|<br><br>|Inspect important application binary file hashes, locations, and modifications for suspicious/unexpected values.
+        &
+        [Runtime, Data, Manipulation, modify, order, manipulate, data, access, displayed, end, user, thus, threaten, integrity, data, By, manipulate, runtime, data, adversary, attempt, affect, business, process, organizational, understand, decision, make, alter, application, binary, use, display, data, order, cause, runtime, manipulation, also, conduct, Change, Default, File, Association, Masquerading, cause, similar, effect, The, type, modification, impact, depends, target, application, process, well, goal, objective, For, complex, would, likely, need, special, expertise, possibly, access, specialized, software, related, would, typically, gain, prolong, information, gathering, campaign, order, desire, impact, Inspect, important, application, binary, file, hash, location, modification, suspicious, unexpected, value] \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+\clearpage
+Visualising the word frequencies in the corpus:\\
+Using TfidfVectorizer and after hyperparameter tuning, the model to use is as follows.
+\begin{lstlisting}[frame=single]
+hidden_units = 32
+batch_size = 16
+num_epochs = 50
+num_classes = 6
+classes = [0,1,2,3,4,5]
+vocab_size = X_train_tfidf.shape[1]
+optimizer = tf.keras.optimizers.legacy.Adam(1e-4)
+
+model4 = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(vocab_size,)),
+    tf.keras.layers.Dense(hidden_units*2, activation='elu'),
+    tf.keras.layers.Dropout(.5),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(hidden_units, activation='elu'),
+    tf.keras.layers.Dropout(.5),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(hidden_units//2, activation='elu'),
+    tf.keras.layers.Dense(num_classes, kernel_regularizer=tf.keras.regularizers.L2(l2=1e-2), activation='softmax')
+])
+r
+model4.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=['accuracy'])
+model4.summary()
+# plot_model(model4, show_shapes=True, show_layer_names=True)
+\end{lstlisting}
+
+This model predicts with accuracy of 0.79.\\
+\includegraphics*[scale=0.528]{cmatrix_model4.png}
+\clearpage
+\textbf{Attempt on Fuzzy Clustering}\\
+\begin{table}[h]
+    \caption{Extracting keywords}
+    \label{crouch}
+    \begin{tabularx}{\textwidth}{p{0.1\textwidth}X}
+        \toprule
+        \textbf{Cluster} & \textbf{Unique STRIDE values} \\
+        \midrule
+        0 &
+        ['000001' '010000' '000100' '000010' '110000' '010001' '100000' '101000' '100100' '011000'] \\
+        \midrule
+        1 &
+        ['000010' '010000' '000001' '000100' '100000' '010010' '011000' '100001' '100100' '101000'] \\
+        \midrule
+        2 &
+        ['000001' '010000' '000100'] \\
+        \midrule
+        3 &
+        ['011000'] \\
+        4 &
+        ['000001' '010000' '010100' '000100' '100000'] \\
+        5 &
+        ['010001' '000001' '010000' '011000' '000010' '000100' '100100' '100000'] \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Visualising the clusters:\\
+\includegraphics*[scale=0.75]{fuzzyclustering.png}
+
+\vspace*{10pt}
+Moving forward, there are several improvements to be made.
+\begin{itemize}
+    \item Instead of selecting keywords from the corpus, it can be constructed by hand using the definition of each categories of STRIDE, and subsequently of RAPIDS.
+    \item Filtering of keywords can include more manual methods to further reduce the keyword corpus.
+    \item Visualise and examine the frequencies for some keywords and manually remove some, then we will be left with lesser keywords that the model will be used to train on, potentially increasing the accuracy of classification.
+\end{itemize}

@@ -1,0 +1,137 @@
+\section*{Week 2: Building the model}
+\addcontentsline{toc}{section}{Week 2: Building the model}
+
+Attempted at using \textit{Tokenizer} for feature extraction. Yields 0.469 accuracy. Should be due to the corpus being too small for the model to properly learn the context of the words.
+\begin{lstlisting}[frame=single]
+tokenizer = Tokenizer(oov_token='<OOV>')
+tokenizer.fit_on_texts(df_train['NameDesc'])
+X_train = tokenizer.texts_to_sequences(df_train['NameDesc'])
+X_test = tokenizer.texts_to_sequences(df_test['NameDesc'])
+X_val = tokenizer.texts_to_sequences(df_dev['NameDesc'])
+
+x = [X_train, X_test, X_val]
+max_length = 0
+for _ in x:
+    max_l = max([len(seq) for seq in _])
+    max_length = max(max_length, max_l)
+
+X_train_padded = pad_sequences(X_train, maxlen=max_length, padding='post')
+X_test_padded = pad_sequences(X_test, maxlen=max_length, padding='post')
+X_val_padded = pad_sequences(X_val, maxlen=max_length, padding='post')
+
+y_train = df_train['STRIDE'].values
+y_test = df_test['STRIDE'].values
+y_val = df_dev['STRIDE'].values
+\end{lstlisting}
+
+Second attempt using \textit{TfidfVectorizer} for feature extraction. This model performs better because TfidfVectorizer works better with a small corpus as it takes into account the frequency of the words appearing which might indicate keywords of a STRIDE category.
+\begin{lstlisting}[frame=single]
+tfidf_vectorizer = TfidfVectorizer()
+
+X_train_tfidf = tfidf_vectorizer.fit_transform(df_train['NameDesc']).toarray()
+X_test_tfidf = tfidf_vectorizer.transform(df_test['NameDesc']).toarray()
+X_val_tfidf = tfidf_vectorizer.transform(df_dev['NameDesc']).toarray()
+
+y_train = df_train['STRIDE'].values
+y_test = df_test['STRIDE'].values
+y_val = df_dev['STRIDE'].values
+\end{lstlisting}
+
+Then I perform hyperparameter tuning on the model.:
+\begin{lstlisting}[frame=single]
+dropout_rates = [0.2, 0.3, 0.4, 0.5]
+activations_list = ['relu', 'leaky_relu', 'elu', 'tanh']
+num_neurons = [32, 64, 128, 256]
+opt_lr = [1e-2, 1e-3, 1e-4]
+L2_lr = [1e-2, 1e-3, 1e-4]
+best_params = None
+best_val_acc = 0
+
+hyperparam_combi = itertools.product(dropout_rates, num_neurons, activations_list, opt_lr, L2_lr)
+
+for dr, nn, al, olr, l2lr in hyperparam_combi:
+    modelTest = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(vocab_size,)),
+    tf.keras.layers.Dense(nn*2, activation=al),
+    tf.keras.layers.Dropout(dr),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(nn, activation=al),
+    tf.keras.layers.Dropout(dr),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(nn//2, activation=al),
+    tf.keras.layers.Dense(num_classes, kernel_regularizer=tf.keras.regularizers.L2(l2=1e-2), activation='softmax')
+    ])
+
+    optimizer = tf.keras.optimizers.legacy.Adam(olr)
+    modelTest.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=['accuracy'])
+    
+    early_stop = EarlyStopping(
+        monitor="val_loss",
+        patience=5,
+        verbose=0,
+        restore_best_weights=True
+    )
+    histTest = modelTest.fit(
+        X_train_tfidf, y_train,
+        batch_size=16,
+        epochs=num_epochs,
+        validation_data=(X_val_tfidf, y_val),
+        verbose=0,
+        callbacks=[early_stop,]
+    )
+
+    val_acc = max(histTest.history['val_accuracy'])
+    # print(f"Dropout: {dr}, Activation: {al}, Hidden Units: {nn}, L2 Reg: {l2lr}, LR: {olr}, Best Val Acc: {val_acc}\n===========================")
+    if val_acc > best_val_acc:
+        best_val_acc = val_acc
+        best_params = (dr, nn, al, olr, l2lr)
+\end{lstlisting}
+
+Final Best Hyperparameters:\\
+Dropout: \textit{0.2},\\
+Activation: \textit{elu},\\
+Hidden Units: \textit{32},\\
+L2 Reg: \textit{0.001},\\
+LR: \textit{0.0001},\\
+Best Val Acc: 0.\textit{918367326259613}\\
+
+Final model used:
+\begin{lstlisting}[frame=single]
+hidden_units = 32
+num_classes = 6
+batch_size = 16
+num_epochs = 50
+classes = [0,1,2,3,4,5]
+vocab_size = X_train_tfidf.shape[1]
+optimizer = tf.keras.optimizers.legacy.Adam(1e-4)
+
+model3 = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(vocab_size,)),
+    tf.keras.layers.Dense(hidden_units*2, activation='elu'),
+    tf.keras.layers.Dropout(.2),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(hidden_units, activation='elu'),
+    tf.keras.layers.Dropout(.2),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(hidden_units//2, activation='elu'),
+    tf.keras.layers.Dense(num_classes, kernel_regularizer=tf.keras.regularizers.L2(l2=1e-3), activation='softmax')
+])
+
+model3.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=['accuracy'])
+model3.summary()
+# plot_model(model3, show_shapes=True, show_layer_names=True)
+\end{lstlisting}
+\clearpage
+Results:
+Plotted a confusion matrix to evaluate the model. It yields an accuracy of 0.857 where the diagonal entries are the true labels predicted.
+\begin{figure}[!h]
+    \includegraphics*[scale=0.528]{cmatrix_1.png}
+\end{figure}
+
+Summary:
+\vspace{-\baselineskip}
+\begin{itemize}
+    \item Try fuzzy clustering on the dataset since GMM and DBSCAN proves to be not too helpful.
+    \item Attempt pulling out more specific keywords and predict the STRIDE category
+    \item Examine using one model for each of STRIDE category
+\end{itemize}

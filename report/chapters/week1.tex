@@ -1,0 +1,30 @@
+\section*{Week 1: Research on STRIDE and Mitre ATT\&CK}
+\addcontentsline{toc}{section}{Week 1: Research on STRIDE and Mitre ATT\&CK}
+Pointers:
+\begin{itemize}
+    \item Read up on STRIDE framework, MITRE ATT\&CK and OpenAI's API.
+    \item Briefing on internship, phase 1 and 2.\\
+    \includegraphics*[scale=1.1]{work.png}
+    \item Studied code from current stride (supervised) \href{https://github.com/sebyakuya/stride-classifier/tree/master}{model classifier}.
+    \item Understood the supervised model's code. Looking at the $raw\_capec\_data.xlsx$ to try clustering methods to create an unsupervised model. The trained supervised model might be useful in feature extraction to train the unsupervised model. What features exactly? Or in transfer learning? Still not too sure.
+    \item Digressing a bit, started researching for similar papers on mapping ATT\&CK to STRIDE.
+    \item Discovered \href{https://github.com/center-for-threat-informed-defense/tram}{TRAM LLM} $\rightarrow$ \textit{Possible to use with the questionaire from GovTech as an input.}
+        \begin{itemize}
+            \item identifies keywords, capable of contextual understanding
+            \item predicts the presence of TTPs (Tactics, Techniques, Procedures) in the text
+            \item then \href{https://github.com/center-for-threat-informed-defense/tram/wiki/Using-TRAM#machine-learning}{finds} the corresponding ATT\&CK technique(s).\\
+            \includegraphics*[scale=0.4]{tramllm.png}
+        \end{itemize}
+    \item \href{https://arxiv.org/pdf/2206.10272.pdf}{Identification of Attack Paths Using Kill Chain and Attack Graphs} $\rightarrow$ \textit{Needs a separate function to create this graph. Seemingly not helpful.}\\
+    \includegraphics*[scale=0.28]{poss_questionaire.png}
+    \includegraphics*[scale=0.32]{poss_questionairediag.png}
+    \item Thinking of either a standalone unsupervised model or a \href{https://journalofbigdata.springeropen.com/articles/10.1186/s40537-022-00636-w}{hybrid} one.
+    \item Summary: Make use of the current supervised model that maps Mitre Att\&cks using keywords to STRIDE. Then we can spatially obtain the clusters of data each corresponding to a category in STRIDE. We can use this as the baseline to train the unsupervised model. Each similarity of \textit{category from GovTech} will be weighted against STRIDE, thereby allowing the mapping of STRIDE to \textit{the GovTech framework}.
+    \item Consolidate ideas:
+        \begin{itemize}
+            \item Use unsupervised model.
+            \item Use hybrid model. Use the current supervised model to extract features (if any) and pass it to the unsupervised model to train for the $GovTech$ framework.
+            \item Find the similarities between STRIDE and the \textit{GovTech framework}, give each category some keywords and use DL to find its weights. Then use the weights to train the unsupervised model.
+        \end{itemize}
+    \item Attempt to change the current supervised model to an unsupervised one.
+\end{itemize}
