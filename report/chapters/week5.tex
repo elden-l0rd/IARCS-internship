@@ -1,0 +1,53 @@
+\section*{Week 5: Solution for selecting final set of keywords}
+\addcontentsline{toc}{section}{Week 5: Solution for selecting final set of keywords}
+
+Continuing from last week: With respect to each STRIDE cateogry, when referencing the list keywords we just obtained, eg. \textit{S\_final}, and the initial list of keywords we obtained, there exists an underlying problem where we are unsure of which words should be deleted or kept for training the model.\\
+The solution I implemented using \textit{word2vec} to compare both lists and compare the similarities between words and set a minimum cosine value threshold. Any words with similarities below the threshold are deemed "not similar enough" and will be dropped. Through experimentation, the threshold value selected is 0.33.\\
+
+\begin{lstlisting}[frame=single]
+def merge_lists(l1, min_cosine_value, w2v, ref_list):
+    final_list = []
+
+    for word in l1:
+        if word in w2v:
+            similarities = []
+            for ref_word in ref_list:
+                if ref_word in w2v:
+                    sim = w2v.similarity(word, ref_word)
+                    similarities.append(sim)
+            if any(sim >= min_cosine_value for sim in similarities):
+                final_list.append(word)
+    return final_list
+\end{lstlisting}
+
+% \begin{table}[h]
+%     \caption{Comparing keywords from dftrain18 chosen arbitarily}
+%     \label{crouch}
+%     \begin{tabularx}{\textwidth}{XXX}
+%         \toprule
+%         \textbf{Original set} & \textbf{Manually filtered set} & \textbf{Resultant set + words removed} \\
+%         \midrule
+%         ["domain", "activity", "high", "direct", "include", "path", "relationship", "network", "gather", "visibility", "software", "potentially", "difficult", "make", "trusted", "supply", "gathering", "manage", "access", "form", "via", "compromise", "place", "accounts", "business", "information", "focus", "elicitation", "lifecycle", "drive", "defender", "second", "effort", "set", "provider", "take", "victim", "social", "owned", "outside", "phishing", "operational", "positive", "reconnaissance", "stage", "domains", "party", "associate", "way", "false", "variety", "chain", "well", "connect", "service", "hardware", "opportunity", "various", "online", "organization", "detection", "search", "accessible", "this", "media", "target", "use", "elevate", "detail", "initial", "data", "adversary", "related", "reveal", "occurrence", "establish", "third", "etc", "expose", "relationships", "resource", "shipment", "contractor", "ex", "open", "rate", "websites", "also"]
+%         &
+%         ["authenticate", "username", "password", "access", "information", "detection", "take", "include", "malicious", "control", "network", "search", "name", "access", "infrastructure", "traffic", "data", "suspicious", "trust", "reconnaissance", "email", "phishing", "resource", "initial", "visibility", "monitor", "server", "form", "open", "potentially", "websites", "address", "process", "detect", "credential", "file", "certificate", "internet", "install", "key", "online", "link", "source"]
+%         &
+%         ["domain", "include", "relationship", "network", "gather", "visibility", "software", "potentially", "make", "trusted", "manage", "access", "form", "via", "information", "lifecycle", "provider", "take", "phishing", "operational", "reconnaissance", "domains", "connect", "service", "hardware", "online", "organization", "detection", "search", "accessible", "media", "use", "initial", "data", "reveal", "establish", "expose", "relationships", "resource", "open", "websites"] \sout{["source", "file", "malicious", "certificate", "monitor", "authenticate", "suspicious", "email", "install", "server", "link", "detect", "control", "trust", "address", "credential", "internet", "process", "password", "traffic", "key", "username", "name", "infrastructure"]} \\
+%         \bottomrule
+%     \end{tabularx}
+% \end{table}
+\begin{table}[h]
+    \caption{Comparing keywords from dftrain18 chosen arbitarily}
+    \label{crouch}
+    \begin{tabularx}{\textwidth}{p{0.3\textwidth}XX}
+        \toprule
+        \textbf{Dataset} & \textbf{Original text} & \textbf{Stemmed \& Lemmatized text} \\
+        \midrule
+        "domain", "activity", "high", "direct", "include", "path", "relationship", "network", "gather", "visibility", "software", "potentially", "difficult", "make", "trusted", "supply", "gathering", "manage", "access", "form", "via", "compromise", "place", "accounts", "business", "information", "focus", "elicitation", "lifecycle", "drive", "defender", "second", "effort", "set", "provider", "take", "victim", "social", "owned", "outside", "phishing", "operational", "positive", "reconnaissance", "stage", "domains", "party", "associate", "way", "false", "variety", "chain", "well", "connect", "service", "hardware", "opportunity", "various", "online", "organization", "detection", "search", "accessible", "this", "media", "target", "use", "elevate", "detail", "initial", "data", "adversary", "related", "reveal", "occurrence", "establish", "third", "etc", "expose", "relationships", "resource", "shipment", "contractor", "ex", "open", "rate", "websites", "also"
+        &
+        "authenticate", "username", "password", "access", "information", "detection", "take", "include", "malicious", "control", "network", "search", "name", "access", "infrastructure", "traffic", "data", "suspicious", "trust", "reconnaissance", "email", "phishing", "resource", "initial", "visibility", "monitor", "server", "form", "open", "potentially", "websites", "address", "process", "detect", "credential", "file", "certificate", "internet", "install", "key", "online", "link", "source"
+        &
+        "domain", "include", "relationship", "network", "gather", "visibility", "software", "potentially", "make", "trusted", "manage", "access", "form", "via", "information", "lifecycle", "provider", "take", "phishing", "operational", "reconnaissance", "domains", "connect", "service", "hardware", "online", "organization", "detection", "search", "accessible", "media", "use", "initial", "data", "reveal", "establish", "expose", "relationships", "resource", "open", "websites" \sout{"source", "file", "malicious", "certificate", "monitor", "authenticate", "suspicious", "email", "install", "server", "link", "detect", "control", "trust", "address", "credential", "internet", "process", "password", "traffic", "key", "username", "name", "infrastructure"} \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+hibye
