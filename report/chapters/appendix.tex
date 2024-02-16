@@ -1,0 +1,97 @@
+\section*{Appendix}
+\addcontentsline{toc}{section}{Appendix}
+
+\subsection*{A1. Keyword filtering v2.0}\label{subsec:appendix1}
+\begin{table}[H]
+    \caption{Extracting keywords v2.0}
+    \label{crouch}
+    \begin{tabularx}{\textwidth}{p{0.1\textwidth}XX}
+        \toprule
+        \textbf{Dataset} & \textbf{Original text} & \textbf{Processed text} \\
+        \midrule
+        df\_train[0] &
+        Business Relationships Adversaries may gather information about the victim's business relationships that can be used during targeting. Information about an organization's business relationships may include a variety of details, including second or third-party organizations/domains (ex: managed service providers, contractors, etc.) that have connected (and potentially elevated) network access. This information may also reveal supply chains and shipment paths for the victim's hardware and software resources.\verb|<br><br>|Adversaries may gather this information in various ways, such as direct elicitation via [Phishing for Information]\nolinkurl{(https://attack.mitre.org/techniques/T1598)}. Information about business relationships may also be exposed to adversaries via online or other accessible data sets (ex: [Social Media]\nolinkurl{(https://attack.mitre.org/techniques/T1593/001)} or [Search Victim-Owned Websites]\nolinkurl{(https://attack.mitre.org/techniques/T1594)}).(Citation: ThreatPost Broadvoice Leak) Gathering this information may reveal opportunities for other forms of reconnaissance (ex: [Phishing for Information]\nolinkurl{(https://attack.mitre.org/techniques/T1598)} or [Search Open Websites/Domains]\nolinkurl{(https://attack.mitre.org/techniques/T1593)}), establishing operational resources (ex: [Establish Accounts]\nolinkurl{(https://attack.mitre.org/techniques/T1585)} or [Compromise Accounts]\nolinkurl{(https://attack.mitre.org/techniques/T1586)}), and/or initial access (ex: [Supply Chain Compromise]\nolinkurl{(https://attack.mitre.org/techniques/T1195)}, [Drive-by Compromise]\nolinkurl{(https://attack.mitre.org/techniques/T1189)}, or [Trusted Relationship]\nolinkurl{(https://attack.mitre.org/techniques/T1199)}).\verb|<br><br>|Much of this activity may have a very high occurrence and associated false positive rate, as well as potentially taking place outside the visibility of the target organization, making detection difficult for defenders.\verb|<br><br>|Detection efforts may be focused on related stages of the adversary lifecycle, such as during Initial Access.
+        &
+        ['websites', 'associate', 'contractor', 'supply', 'path', 'online', 'variety', 'operational', 'this', 'phishing', 'gathering', 'via', 'search', 'use', 'adversary', 'open', 'take', 'initial', 'drive', 'victim', 'include', 'etc', 'manage', 'potentially', 'trusted', 'access', 'connect', 'target', 'resource', 'elicitation', 'hardware', 'organization', 'direct', 'place', 'rate', 'elevate', 'network', 'service', 'well', 'domains', 'second', 'activity', 'gather', 'way', 'establish', 'stage', 'provider', 'compromise', 'data', 'defender', 'relationship', 'false', 'chain', 'reconnaissance', 'accounts', 'media', 'social', 'relationships', 'outside', 'information', 'effort', 'domain', 'detail', 'related', 'business', 'software', 'various', 'also', 'opportunity', 'lifecycle', 'ex', 'set', 'owned', 'positive', 'detection', 'third', 'accessible', 'party', 'high', 'difficult', 'occurrence', 'make', 'shipment', 'visibility', 'focus', 'reveal', 'expose', 'form'] \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+\clearpage
+\begin{table}[h]
+    \caption{Extracting keywords v2.0}
+    \label{crouch}
+    \begin{tabularx}{\textwidth}{p{0.1\textwidth}XX}
+        \toprule
+        df\_train[2] &
+        Symmetric Cryptography Adversaries may employ a known symmetric encryption algorithm to conceal command and control traffic rather than relying on any inherent protections provided by a communication protocol. Symmetric encryption algorithms use the same key for plaintext encryption and ciphertext decryption. Common symmetric encryption algorithms include AES, DES, 3DES, Blowfish, and RC4.\verb|<br><br>|With symmetric encryption, it may be possible to obtain the algorithm and key from samples and use them to decode network traffic to detect malware communications signatures.\verb|<br><br>|In general, analyze network data for uncommon data flows (e.g., a client sending significantly more data than it receives from a server). Processes utilizing the network that do not normally have network communication or have never been seen before are suspicious. Analyze packet contents to detect communications that do not follow the expected protocol behavior for the port that is being used.(Citation: University of Birmingham C2)
+        &
+        ['content', 'sample', 'packet', 'know', 'obtain', 'data', 'flow', 'provide', 'with', 'uncommon', 'control', 'utilize', 'traffic', 'port', 'key', 'general', 'detect', 'de', 'algorithm', 'see', 'send', 'rc', 'follow', 'decryption', 'suspicious', 'employ', 'protection', 'processes', 'plaintext', 'cryptography', 'malware', 'ciphertext', 'inherent', 'analyze', 'never', 'conceal', 'behavior', 'use', 'in', 'signature', 'symmetric', 'command', 'common', 'possible', 'network', 'include', 'aes', 'encryption', 'protocol', 'server', 'rather', 'rely', 'blowfish', 'receives', 'des', 'expect', 'communication', 'significantly', 'normally', 'client'] \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+\clearpage
+
+
+\subsection*{A2. Word2Vec semantic analysis}\label{subsec:appendix2}
+\begin{lstlisting}[frame=single]
+min_cosine_value = 0.28
+list1 = ['apples', 'oranges', 'samsung', 'today']
+reference_words = ['fruit', 'fruits']    
+\end{lstlisting}
+With reference to the code snippet above, I want to filter out the words that are associated with 'fruits' as in \textit{reference\_words}. I adjust the \textit{min\_cosine\_value} (threshold) such that the words \textit{merge\_lists()} outputs are fruits. \\ \\
+Similarly in the main project, the reference words are the manually obtained keywords for each STRIDE category, while \textit{list1} is the original set of keywords that requrie additional filtering.
+\clearpage
+
+\subsection*{A3. Hyperparameter tuning for MLP}\label{subsec:appendix3}
+\begin{lstlisting}[frame=single]
+num_epochs = 50
+num_classes = 6
+vocab_size = X_train_tfidf.shape[1]
+dropout_rates = [0.2, 0.3, 0.4, 0.5]
+activations_list = ['relu', 'leaky_relu', 'elu', 'tanh']
+num_neurons = [32, 64, 128, 256]
+opt_lr = [1e-2, 1e-3, 1e-4]
+L2_lr = [1e-2, 1e-3, 1e-4]
+best_params = None
+best_val_acc = 0
+
+hyperparam_combi = itertools.product(dropout_rates, num_neurons, activations_list, opt_lr, L2_lr)
+
+for dr, nn, al, olr, l2lr in hyperparam_combi:
+    modelTest = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(vocab_size,)),
+    tf.keras.layers.Dense(nn*2, activation=al),
+    tf.keras.layers.Dropout(dr),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(nn, activation=al),
+    tf.keras.layers.Dropout(dr),
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dense(nn//2, activation=al),
+    tf.keras.layers.Dense(num_classes, kernel_regularizer=tf.keras.regularizers.L2(l2=1e-2), activation='softmax')
+    ])
+
+    optimizer = tf.keras.optimizers.legacy.Adam(olr)
+    modelTest.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=['accuracy'])
+    
+    early_stop = EarlyStopping(
+        monitor="val_loss",
+        patience=5,
+        verbose=0,
+        restore_best_weights=True
+    )
+    histTest = modelTest.fit(
+        X_train_tfidf, y_train,
+        batch_size=16,
+        epochs=num_epochs,
+        validation_data=(X_val_tfidf, y_val),
+        verbose=0,
+        callbacks=[early_stop,]
+    )
+
+    val_acc = max(histTest.history['val_accuracy'])
+    # print(f"Dropout: {dr}, Activation: {al}, Hidden Units: {nn}, L2 Reg: {l2lr}, LR: {olr}, Best Val Acc: {val_acc}\n===========================")
+    if val_acc > best_val_acc:
+        best_val_acc = val_acc
+        best_params = (dr, nn, al, olr, l2lr)
+print(f"Final Best Hyperparameters: Dropout: {best_params[0]},\nActivation: {best_params[2]},\nHidden Units: {best_params[1]},\nL2 Reg: {best_params[4]},\nLR: {best_params[3]},\nBest Val Acc: {best_val_acc}")    
+\end{lstlisting}
