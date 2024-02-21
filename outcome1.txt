@@ -1,0 +1,1 @@
+In school, I have learnt the basics of deep learning (DL) and natural language processing (NLP) through various school projects. In the workplace, I was required to apply the knowledge to create a language model for text classification.

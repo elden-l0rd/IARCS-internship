@@ -1,0 +1,28 @@
+\section*{Week 6: Experimenting with Llama 2 \& different training technqiues}
+\addcontentsline{toc}{section}{Week 6: Experimenting with Llama 2 \& different training technqiues}
+
+Main things this week:
+\begin{itemize}[topsep=0pt]
+    \item \textbf{6.1} Setup Llama 2 7B-chat model
+    \item \textbf{6.2} Tried using Google Colab and AWS instances to run the LLM
+    \item \textbf{6.3} Found a \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model to try
+    \item \textbf{6.4} Retraining model5 from the previous week using a smaller training set and larger test Setup
+    \item \textbf{6.5} Training a separate models for each category and combining them in a multi-modal model
+\end{itemize}
+
+\subsection*{6.1 Setup Llama 2 7B-chat model}
+Findings:
+\begin{itemize}[topsep=0pt]
+    \item Llama 2 comes with some variants, \{7B, 13B, 70B\} models. I was only able to run the 7B model locally due to system requirements. \textcolor{red}{The 13B model works perfectly on the company's server.}
+    \item There is still much work to do to fine tune this model, i.e. it still needs to learn how to map MITRE ATT\&CKS to STRIDE.
+\end{itemize}
+
+
+\subsection*{6.2 Google Colab and AWS instance}
+\begin{itemize}[topsep=0pt]
+    \item Colab is limited by the free storage of 15GB. The smallest 7B model is already 13.48GB and after quantizing it, there is an additional binary file of 3.83GB. Hence, insufficient memory.
+    \item AWS instance is doable, but storage costs \$0.023 per GB. The hassle comes when I have to delete all files after each time I done working with the server to avoid incurring a charge.
+\end{itemize}
+\subsection*{6.3 MTEB model}
+\subsection*{6.4 Retraining model5}
+\subsection*{6.5 Training}
