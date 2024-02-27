@@ -20,18 +20,18 @@ def vectorize(df_train, df_test, df_dev):
     return X_train_tfidf, X_test_tfidf, X_val_tfidf, y_train, y_test, y_val
 
 # model
-def initialise_model(HIDDEN_UNITS, NUM_CLASSES, VOCAB_SIZE):
-    OPTIMIZER = tf.keras.optimizers.legacy.Adam(1e-4)
+def initialise_model(hidden_units, num_classes, vocab_size, dropout, activation, lr, l2_reg):
+    OPTIMIZER = tf.keras.optimizers.legacy.Adam(lr)
     model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(VOCAB_SIZE,)),
-        tf.keras.layers.Dense(HIDDEN_UNITS*2, activation='leaky_relu'),
-        tf.keras.layers.Dropout(.2),
+        tf.keras.layers.Input(shape=(vocab_size,)),
+        tf.keras.layers.Dense(hidden_units*2, activation=activation),
+        tf.keras.layers.Dropout(dropout),
         tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dense(HIDDEN_UNITS, activation='leaky_relu'),
-        tf.keras.layers.Dropout(.2),
+        tf.keras.layers.Dense(hidden_units, activation=activation),
+        tf.keras.layers.Dropout(dropout),
         tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dense(HIDDEN_UNITS//2, activation='leaky_relu'),
-        tf.keras.layers.Dense(NUM_CLASSES, kernel_regularizer=tf.keras.regularizers.L2(l2=1e-3), activation='softmax')
+        tf.keras.layers.Dense(hidden_units//2, activation=activation),
+        tf.keras.layers.Dense(num_classes, kernel_regularizer=tf.keras.regularizers.L2(l2=l2_reg), activation=activation)
     ])
 
     model.compile(optimizer=OPTIMIZER, loss="sparse_categorical_crossentropy", metrics=['accuracy'])

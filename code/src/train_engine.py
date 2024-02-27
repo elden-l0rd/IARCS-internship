@@ -3,6 +3,7 @@ from modules import preprocessing as pre
 from modules import extract_keywords as ek
 from modules import visualise as vis
 import model
+import hyperparm as hpt
 
 PATH = '../data/external/mitre-classified.xlsx'
 df = pd.read_excel(PATH)
@@ -13,7 +14,8 @@ S  T  R  I  D  E  (mapping)
 0  5  4  3  2  1
 '''
 
-df_train, df_test, df_dev = pre.split_data(df)
+# train test dev split
+df_train, df_test, df_dev = pre.split_data(df, train_set_size=0.3, test_set_size=0.7)
 
 col_toDrop = ['Ref', 'Name', 'Desc', 'Confidentiality', 'Integrity', 'Availability', 'Ease Of Exploitation', 'References', 'Unnamed: 0']
 df_train = df_train.reset_index(drop=True).drop(columns=col_toDrop)
@@ -38,12 +40,19 @@ vis.plot_wc(df_train)
 
 X_train_tfidf, X_test_tfidf, X_val_tfidf, y_train, y_test, y_val = model.vectorize(df_train, df_test, df_dev)
 
-model6 = model.initialise_model(HIDDEN_UNITS=128,
-                               NUM_CLASSES=6,
-                               VOCAB_SIZE=X_train_tfidf.shape[1])
-NUM_EPOCHS = 50
+NUM_EPOCHS = 100
 BATCH_SIZE = 16
 CLASSES = [0,1,2,3,4,5]
+DROPOUT = .23
+
+model6 = model.initialise_model(hidden_units=128,
+                               num_classes=6,
+                               vocab_size=X_train_tfidf.shape[1],
+                               dropout=DROPOUT,
+                               activation='leaky_relu',
+                               lr=1e-3,
+                               l2_reg=1e-4)
+
 hist6, model6 = model.train_loop(model=model6,
                                  X_train_tfidf=X_train_tfidf,
                                  y_train=y_train,
@@ -57,3 +66,16 @@ vis.plot_graph(hist=hist6,
                X_val_padded=X_test_tfidf,
                y_val=y_test,
                classes=CLASSES)
+
+
+###################################################
+# hyperparameter tuning
+# hpt.hyperparameter_tuning(X_train_tfidf, y_train, X_val_tfidf, y_val)
+'''
+Final Best Hyperparameters: Dropout: 0.3,
+Activation: leaky_relu,
+Hidden Units: 64,
+L2 Reg: 0.0001,
+LR: 0.001,
+Best Val Acc: 0.6591640114784241
+'''

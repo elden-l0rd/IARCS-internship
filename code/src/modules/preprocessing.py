@@ -1,6 +1,5 @@
 import re
 import random
-
 import nltk
 from nltk.corpus import stopwords, wordnet
 from nltk.tokenize import word_tokenize
@@ -9,7 +8,6 @@ nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
-
 from sklearn.model_selection import train_test_split
 
 def basic_processing(df):
@@ -77,10 +75,13 @@ def change_label(df):
     }
     df['STRIDE'] = df['STRIDE'].map(stride_mapping)
 
-def split_data(df):
+def split_data(df, train_set_size, test_set_size):
+    '''
+    train_set_size + test_set_size + dev_set_size = 1
+    '''
     while True:
-        df_train, temp = train_test_split(df, test_size=0.3)
-        df_test, df_dev = train_test_split(temp, test_size=1/3)
+        df_train, temp = train_test_split(df, test_size=1-train_set_size)
+        df_test, df_dev = train_test_split(temp, test_size=test_set_size)
 
         change_label(df_train)
         change_label(df_test)

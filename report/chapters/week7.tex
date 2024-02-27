@@ -4,11 +4,24 @@
 The main goals achieved this week are:
 \begin{itemize}[topsep=0pt]
     \item \textbf{7.1} Retraining model5 from the previous week using a smaller training set and larger test set
-    \item \textbf{7.2} Training a separate models for each category and combining them into a single model
-    \item \textbf{7.3} Prompt engineering results on Llama 2
-    \item \textbf{7.4} Found a \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model to try
+    \item \textbf{7.2} Found a \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model to try
+    \item \textbf{7.3} One-vs-the-Rest (OvR) multiclass strategy
+    \item \textbf{7.4} Prompt engineering results on Llama 2
     \item \textit{misc.} Reformatted the original Jupyter files (.ipynb) into Python files (.py) for easier integration with Docker containers
 \end{itemize}
 
-\subsection*{7.1 Training model5 on smaller training set}
-hi
+\subsection*{7.1 Training model5 on smaller training set $\Longrightarrow$ model6}
+I did some research and found out that training models on a smaller training set and larger test set might be useful when training resources are limited.
+Sure enough, the attempts were not all futile. \\\\
+I noticed a striking pattern between `Information disclosure' (I) and `Elevation of privilege' (E). Most of the time the model either classfies most of the data correctly as the former or latter. This means that if a lot of `I' is classfied correctly, `E' is classified wrongly as `I', vice versa. \\\\
+Strangely, this could suggest the keywords for both categories are very similar. The following result was the best that I could achieve with the same architecture as model5. \\
+
+\includegraphics*[scale=0.528]{cmatrix_model6.png}
+
+I believe that the model architecture might be too straightforward. As such, I have implemented a more complex model in the next section.
+
+\subsection*{7.2 More complex model architecture}
+This model is based on the \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model. The model is a transformer-based model. The paper suggests that transformers might help in injecting context awareness into the language model via self-attention.
+
+\subsection*{7.3 One-vs-the-Rest (OvR) multiclass strategy}
+This OvR strategy is a way to break down a mutliclass classification problem into mutliple binary classification problems, effectively ``training a separate models for each category and combining them into a single model''.

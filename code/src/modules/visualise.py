@@ -32,11 +32,11 @@ def plot_wc(df):
         sv = ['S','E','D','I','R','T']
         plt.title(f"Word Cloud for STRIDE '{stride_value}': {sv[stride_value]}")
         plt.savefig(f"{output_dir}/wordcloud_{stride_value}.png")
-        # plt.pause(1.5)
-        # plt.close()
-        plt.draw()
-        plt.pause(0.001)
-        input("Press [enter] to continue.")
+        plt.pause(.3)
+        plt.close()
+        # plt.draw()
+        # plt.pause(0.001)
+        # input("Press [enter] to continue.")
     print("Generated all word clouds...")
     return
 
