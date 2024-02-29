@@ -6,9 +6,10 @@ The main goals achieved this week are:
     \item \textbf{7.1} Retraining model5 from the previous week using a smaller training set and larger test set
     \item \textbf{7.2} Found a \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model to try
     \item \textbf{7.3} One-vs-the-Rest (OvR) multiclass strategy
-    \item \textbf{7.4} Prompt engineering results on Llama 2
-    \item \textbf{7.5} Reformatted the original Jupyter files (.ipynb) into Python files (.py) for easier integration with Docker containers
-    \item \textbf{7.6} Findings from \href{https://github.com/mrwadams/stride-gpt?tab=readme-ov-file#usage}{stride-gpt} on Github
+    \item \textbf{7.4} Experimenting with multinomial Naive Bayes and Random Forest classifiers
+    % \item \textbf{7.4} Prompt engineering results on Llama 2
+    \item \textbf{7.5} Refactoring of the codebase
+    \item \textbf{7.6} Findings from \href{https://github.com/mrwadams/stride-gpt?tab=readme-ov-file#usage}{stride-gpt} on GitHub
 \end{itemize}
 
 \subsection*{7.1 Training model5 on smaller training set $\Longrightarrow$ model6}
@@ -33,3 +34,98 @@ For example, if there are 3 categories red, blue and green, the OvR strategy wou
     \text{Model 3:} \quad & \text{green vs. not green} \\
 \end{align*}
 However, the results obtained were not favourable.
+
+
+\subsection*{7.4 Experimenting with multinomial Naive Bayes and Random Forest classifiers}
+Looking back, I realised I did not attempt to use these 2 classifiers. I chose multinomial Naive Bayes and Random Forest classifiers because they are commonly used for text classification tasks with discrete features. In this case, the features would be the keywords. \\
+However, similar to the GMM, DBSCAN and fuzzy clustering, the clustering algorithms did not work well due to a lot of overlaps between `E', `I' and `T' categories. The results are shown below.\\
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics*[scale=0.5]{cmatrix_NB.png}
+        \caption{Multinomial Naive Bayes}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics*[scale=0.5]{cmatrix_RF.png}
+        \caption{Random Forest}
+    \end{subfigure}
+\end{figure}
+
+
+\subsection*{7.5 Refactoring of  the codebase}
+Reformatted the original Jupyter files (.ipynb) into Python files (.py) for easier integration with Docker containers and the because it seems to be the industry standard for these machine learning projects.
+
+\subsection*{7.6 Findings from stride-gpt on GitHub}
+This a tool for developers to create threat models during the software development cycle. Users will input details about their application and then it will generate a threat model, attack tree and mitigation solutions. It requires an OpenAI API key which is no longer free so I could not test it on my end. However, the developers uploaded videos to showcase their app. \\'
+Users are greeted by this homepage:
+\begin{figure}[htbp]
+    \centering
+    \includegraphics*[scale=0.3]{stride-gpt/homepage.png}
+\end{figure}
+
+Users first follow steps to enter details about their application:
+\begin{enumerate}[topsep=0pt]
+    \item Input their OpenAI API key and select the model they want to use (gpt-4-turbo-preview, gpt-4, gpt3.5-turbo)
+    \item Type in sentences to \textbf{describe their application briefly} before selecting specifics of the application from the next step
+    \item \textbf{Select application type}: (Web, Mobile Desktop, Cloud, IoT, Other)
+    \item Choose if \textbf{application is internet-facing}
+    \item Select \textbf{sensitivity level of the data}: (None, Unclassified, Restricted, Confidential, Secret, Top Secret)
+    \item \textbf{Authentication methods supported}, multiple options can be selected: (SSO, MFA, OAUTH2, Basic, None)
+    \item Choose if \textbf{privileged accounts are stored in a Privileged Access Management (PAM) solution}
+\end{enumerate}
+\clearpage
+
+Then the app will first generate a threat model based on the STRIDE framework. For each category, it describes how an attacker could carry out the attack. It will also suggest some details about the application to be added to the prompts in step 2.
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{1\textwidth}
+        \centering
+        \includegraphics*[scale=0.25]{stride-gpt/threatmodel.png}
+        \caption{Generated threat model}
+    \end{subfigure}
+    \par\bigskip
+    \begin{subfigure}[b]{1\textwidth}
+        \centering
+        \includegraphics*[scale=0.25]{stride-gpt/threatmodelsuggestion.png}
+        \caption{Suggestions to improve threat model}
+    \end{subfigure}
+\end{figure}
+
+Next, using the generated threat model, an attack tree code of a top-down graph is generated.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics*[scale=0.3]{stride-gpt/attacktreecode.png}
+\end{figure}
+
+The code can be pasted into \href{https://mermaid.live/edit#pako:eNpllMGO2jAQhl9llBNIu5ceOVRKCOxG2qiUsO2h9DA4Q-LdYEe2Q0tX--4d2xRolgNC-J9_Zj7P-C0RuqZkljQG-xY2-VYBf9If2-Q77SDt-04KdFIr2LSG0EHJ-m6b_IT7-8-Qsa7qtd5L1UBRk3LSnfjw7BI0c9Zs8NCT8aJf0rWQo8ORKmfVmvqhliHb6HTBp4Xaa3OIteTSik7bwdBIuGRhTkpiB3oPFZmjFGPNA2sWHR2jFctWRh5lR00URmkW-_MgymUK2alHay9G51Pf_pd0cO0n2OhXUvAoX1C8cp9jpYcwNxQIcW2VG_aB2SRDKwV4jymMgzyTiqz1Zf7vHGXzyNfX6InClfJRIlRfn6BQLyRCm5PyxH_c5DgHZx-DZeDrTLEbHNWQZzCZc_OoaoMfDXxnS6YHz32nsYZvQ6fI4E52PAowWT2upjcl5_GyQ8nS4o7jUr5zB0-6ueI9q3xti99sy-eFsh6ZkEzQi5tbyPF7EUclDdSUlU4eKYwasEkYlsBlYYw2UDJXbOia8xztc5aoPATXEpSyrrnGSVlsyimkzvElgB9Ab8uajUGfaezioTwr5FvVRv5hiOmqgFQITgqTNaFwdzAis4zzG8jkuvJJeAPZm7OPVnF6SXcOCpfIMb69NVk9GEHcdIuDjZefZ7epHuIa-FSX0YeFFdjFlXCt0UPTwlpz6wxD9kP3byuTu-RAvIay5kfjzfttEwZ14N2Z8c-a9jh0zGOr3lnKBHR1UiKZOTPQXTL0NTrKJfJzc0hme-ws_0s8ANqU8SEK79H7XxTQbec}{Mermaid} to visualise the graph. \\
+The next page shows the Mermaid web editor and the attack tree generated.
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{1\textwidth}
+        \centering
+        \includegraphics*[scale=0.3]{stride-gpt/mermaidlive.png}
+        \caption{Mermaid Live Editor}
+    \end{subfigure}
+    \par\bigskip
+    \begin{subfigure}[b]{1\textwidth}
+        \centering
+        \includegraphics*[scale=0.3]{stride-gpt/attacktree.png}
+        \caption{Example attack tree generated}
+    \end{subfigure}
+\end{figure}
+\clearpage
+
+Lastly, a list of mitigation solutions is generated for each STRIDE category which the user can take into account when they build their application.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics*[scale=0.25]{stride-gpt/mitigations.png}
+\end{figure}
+
+\subsubsection*{Codebase analysis}
+The codebase is written in Python. The logic behind the generation of threat model/attack tree/mitigations does not involve any complicated machine learning models. It merely passes the user's inputs into a GPT model via JSON requests and then processes the output in Markdown format. The main functions can be referred to in \href{https://github.com/mrwadams/stride-gpt/blob/master/main.py}{lines 24, 133 and 229}. Or for simplicity's sake, the picture below shows the function to prompt the GPT model to create the mitigation solutions.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics*[scale=0.45]{stride-gpt/gptprompt.png}
+\end{figure}

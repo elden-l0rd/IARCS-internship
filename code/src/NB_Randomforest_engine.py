@@ -39,7 +39,7 @@ vis.plot_wc(df_train)
 X_train_tfidf, X_test_tfidf, y_train, y_test = ovr.vectorize(df_train, df_test)
 
 # 0: Naive Bayes, 1: Random Forest
-y_pred, accuracy, precision, recall, f1, cm = NB_RF.classifier_selector(0,
+y_pred, accuracy, precision, recall, f1, cm = NB_RF.classifier_selector(1,
                                                                         X_train_tfidf,
                                                                         X_test_tfidf,
                                                                         y_train, y_test)
@@ -48,5 +48,4 @@ print("\nAccuracy:", accuracy)
 print("Precision:", precision)
 print("Recall:", recall)
 print("F1-score:", f1)
-print("\nConfusion Matrix:")
-print(cm)
+vis.plot_cm(cm)

@@ -41,7 +41,7 @@ def plot_wc(df):
     return
 
 def plot_data(hist, model, X_val_padded, y_val, classes):
-    output_dir = '../data/results'
+    output_dir = 'data/results'
 
     acc = hist.history['accuracy']
     val_acc = hist.history['val_accuracy']
@@ -77,11 +77,13 @@ def plot_data(hist, model, X_val_padded, y_val, classes):
     plt.pause(2)
     return
 
-def plot_cm(model, X_val_padded, y_val, classes):
-    output_dir = '../data/results'
-    y_pred = np.argmax(model.predict(X_val_padded), axis=1)
-    cm = confusion_matrix(y_val, y_pred)
-    plt.subplot(1, 3, 3)
+def plot_cm(cm, model=0, X_val_padded=0, y_val=0, classes=0):
+    output_dir = 'data/results'
+    if (model or X_val_padded or y_val or classes):
+        y_pred = np.argmax(model.predict(X_val_padded), axis=1)
+        cm = confusion_matrix(y_val, y_pred)
+    
+    plt.figure(figsize=(6, 6))
     sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=classes, yticklabels=classes, square=True)
     plt.xlabel('Predicted labels')
     plt.ylabel('True labels')
