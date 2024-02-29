@@ -2,7 +2,7 @@ import pandas as pd
 from modules import preprocessing as pre
 from modules import extract_keywords as ek
 from modules import visualise as vis
-import model
+import models.model as model
 import hyperparm as hpt
 
 PATH = '../data/external/mitre-classified.xlsx'
@@ -15,7 +15,7 @@ S  T  R  I  D  E  (mapping)
 '''
 
 # train test dev split
-df_train, df_test, df_dev = pre.split_data(df, train_set_size=0.3, test_set_size=0.7)
+df_train, df_test, df_dev = pre.split_data(df, train_set_size=0.3, test_set_size=0.7, dev=True)
 
 col_toDrop = ['Ref', 'Name', 'Desc', 'Confidentiality', 'Integrity', 'Availability', 'Ease Of Exploitation', 'References', 'Unnamed: 0']
 df_train = df_train.reset_index(drop=True).drop(columns=col_toDrop)
@@ -61,7 +61,7 @@ hist6, model6 = model.train_loop(model=model6,
                                  NUM_EPOCHS=NUM_EPOCHS,
                                  BATCH_SIZE=BATCH_SIZE)
 
-vis.plot_graph(hist=hist6,
+vis.plot_data(hist=hist6,
                model=model6,
                X_val_padded=X_test_tfidf,
                y_val=y_test,

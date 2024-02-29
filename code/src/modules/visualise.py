@@ -21,7 +21,7 @@ def word_occurrence_by_group(df):
 
 def plot_wc(df):
     print("Generating word cloud...")
-    output_dir = '../data/results/wordclouds'
+    output_dir = 'data/results/wordclouds'
     token_counts_by_group = word_occurrence_by_group(df)
     for stride_value, token_count in token_counts_by_group.items():
         wordcloud = WordCloud(background_color="black").generate_from_frequencies(token_count)
@@ -40,7 +40,7 @@ def plot_wc(df):
     print("Generated all word clouds...")
     return
 
-def plot_graph(hist, model, X_val_padded, y_val, classes):
+def plot_data(hist, model, X_val_padded, y_val, classes):
     output_dir = '../data/results'
 
     acc = hist.history['accuracy']
@@ -63,6 +63,22 @@ def plot_graph(hist, model, X_val_padded, y_val, classes):
     plt.legend()
     plt.title('Training and Validation Loss')
 
+    y_pred = np.argmax(model.predict(X_val_padded), axis=1)
+    cm = confusion_matrix(y_val, y_pred)
+    plt.subplot(1, 3, 3)
+    sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=classes, yticklabels=classes, square=True)
+    plt.xlabel('Predicted labels')
+    plt.ylabel('True labels')
+    plt.title('Confusion Matrix')
+
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/confusionmatrix.png", bbox_inches='tight')
+    plt.show()
+    plt.pause(2)
+    return
+
+def plot_cm(model, X_val_padded, y_val, classes):
+    output_dir = '../data/results'
     y_pred = np.argmax(model.predict(X_val_padded), axis=1)
     cm = confusion_matrix(y_val, y_pred)
     plt.subplot(1, 3, 3)
