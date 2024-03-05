@@ -1,15 +1,13 @@
-\section*{Week 7: Experimenting with Llama 2 \& different training technqiues}
-\addcontentsline{toc}{section}{Week7: Experimenting with Llama 2 \& different training technqiues}
+\section*{Week 7: Experimenting with different classification technqiues}
+\addcontentsline{toc}{section}{Week 7: Experimenting with different classification technqiues}
 
 The main goals achieved this week are:
 \begin{itemize}[topsep=0pt]
     \item \textbf{7.1} Retraining model5 from the previous week using a smaller training set and larger test set
-    \item \textbf{7.2} Found a \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model to try
-    \item \textbf{7.3} One-vs-the-Rest (OvR) multiclass strategy
-    \item \textbf{7.4} Experimenting with multinomial Naive Bayes and Random Forest classifiers
-    % \item \textbf{7.4} Prompt engineering results on Llama 2
-    \item \textbf{7.5} Refactoring of the codebase
-    \item \textbf{7.6} Findings from \href{https://github.com/mrwadams/stride-gpt?tab=readme-ov-file#usage}{stride-gpt} on GitHub
+    \item \textbf{7.2} One-vs-the-Rest (OvR) multiclass strategy
+    \item \textbf{7.3} Experimenting with multinomial Naive Bayes and Random Forest classifiers
+    \item \textbf{7.4} Refactoring of the codebase
+    \item \textbf{7.5} Findings from \href{https://github.com/mrwadams/stride-gpt?tab=readme-ov-file#usage}{stride-gpt} on GitHub
 \end{itemize}
 
 \subsection*{7.1 Training model5 on smaller training set $\Longrightarrow$ model6}
@@ -22,10 +20,7 @@ Strangely, this could suggest the keywords for both categories are very similar.
 
 I believe that the model architecture might be too straightforward. As such, I have implemented a more complex model in the next section.
 
-\subsection*{7.2 More complex model architecture}
-This model is based on the \href{https://arxiv.org/pdf/2210.07316.pdf}{Massive Text Embedding Benchmark (MTEB)} model. The model is a transformer-based model. The paper suggests that transformers might help in injecting context awareness into the language model via self-attention.
-
-\subsection*{7.3 One-vs-the-Rest (OvR) multiclass strategy}
+\subsection*{7.2 One-vs-the-Rest (OvR) multiclass strategy}
 This OvR strategy is a way to break down a mutliclass classification problem into mutliple binary classification problems, effectively ``training a separate models for each category and combining them into a single model''. \\
 For example, if there are 3 categories red, blue and green, the OvR strategy would train 3 models: \\
 \begin{align*}
@@ -34,30 +29,34 @@ For example, if there are 3 categories red, blue and green, the OvR strategy wou
     \text{Model 3:} \quad & \text{green vs. not green} \\
 \end{align*}
 However, the results obtained were not favourable.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics*[scale=0.4]{cmatrix_ovr.png}
+\end{figure}
 
 
-\subsection*{7.4 Experimenting with multinomial Naive Bayes and Random Forest classifiers}
+\subsection*{7.3 Multinomial Naive Bayes and Random Forest classifiers}
 Looking back, I realised I did not attempt to use these 2 classifiers. I chose multinomial Naive Bayes and Random Forest classifiers because they are commonly used for text classification tasks with discrete features. In this case, the features would be the keywords. \\
 However, similar to the GMM, DBSCAN and fuzzy clustering, the clustering algorithms did not work well due to a lot of overlaps between `E', `I' and `T' categories. The results are shown below.\\
 
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics*[scale=0.5]{cmatrix_NB.png}
+        \includegraphics*[scale=0.4]{cmatrix_NB.png}
         \caption{Multinomial Naive Bayes}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics*[scale=0.5]{cmatrix_RF.png}
+        \includegraphics*[scale=0.4]{cmatrix_RF.png}
         \caption{Random Forest}
     \end{subfigure}
 \end{figure}
+\clearpage
 
-
-\subsection*{7.5 Refactoring of  the codebase}
+\subsection*{7.4 Refactoring of the codebase}
 Reformatted the original Jupyter files (.ipynb) into Python files (.py) for easier integration with Docker containers and the because it seems to be the industry standard for these machine learning projects.
 
-\subsection*{7.6 Findings from stride-gpt on GitHub}
+\subsection*{7.5 Findings from stride-gpt on GitHub}
 This a tool for developers to create threat models during the software development cycle. Users will input details about their application and then it will generate a threat model, attack tree and mitigation solutions. It requires an OpenAI API key which is no longer free so I could not test it on my end. However, the developers uploaded videos to showcase their app. \\'
 Users are greeted by this homepage:
 \begin{figure}[htbp]
