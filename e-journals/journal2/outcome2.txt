@@ -1,0 +1,5 @@
+I faced a problem where my dataset was not big enough to train a text classification model properly.
+
+I previously have tried changing the model architecture and parameters a few times but still could not achieve a desirable result. I took a step bac think about the problem again. I remembered being taught about data augmentation when I was working with images in school. I proceeded to find data augmentation methods for texts and decided to use the back translation method. Though the results were not fantastic, I was able to achieve considerable progress.
+
+This taught me that in every difficult problem, I sometimes need to take a step back and reassess the problem and break it down into smaller problems. Else I can use similar smaller problems and try to scale it back up to solve the main bigger problem. It is a more effective problem solving strategy.

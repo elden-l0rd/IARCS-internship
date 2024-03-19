@@ -1,0 +1,8 @@
+I definitely lack in experience and domain knowledge. I was unsure of any other clustering techniques other than the more generic ones taught in school.
+
+Recognising a gap in my competency, I found the DBSCAN clustering technique that I wanted to learn how to use.
+In my final work, I included visuals to compare DBSCAN with the ones that I am already using and explained how different the former works and why it might be better in my use case.
+
+I had to do some research to find out what others there are and which ones are useful for me. I used the more common websites that the community trusts to search for the information I needed. I also searched on GitHub and check out how others have implemented it and the results that are obtained.
+
+At the end of the day, there are meetings with my supervisor to get feedback about my work, such as how else I can approach the problem.

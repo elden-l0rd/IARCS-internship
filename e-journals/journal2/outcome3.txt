@@ -1,0 +1,5 @@
+When I encounter a theoretical problem that I do not know how to solve, I will go to NTU library and search for relevant papers and then skim through the introduction, discussion, results and conclusion paragraphs.
+
+Since the sources are from NTU library, the papers are most likely reliable. Nonetheless, after I settled down on a particular solution, I will search online for any other relevant research/implementations. If there is a problem with concepts, I will use Google search and go to the usual reputable websites to study.
+
+While researching, I learnt that thoroughness in research extends beyond institutional databases, it also applies to the educational resources found online. Besides, resolving my conceptual gaps not only expanded my knowledge, it also honed my critical thinking skills, as I learnt to discern the quality of online sources. Therefore, I am better at making well-substantiated recommendations.
