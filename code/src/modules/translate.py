@@ -14,7 +14,7 @@ def to_english(text, target='en', translator=translator):
     # print(f"Translated to {target}.")
     return translated
 
-def back_translation(text, target, translator=translator):
+def back_translation(text, target):
     '''
     text: can be a string or a list of strings
     '''

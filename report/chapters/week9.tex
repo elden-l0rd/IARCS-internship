@@ -1,33 +1,19 @@
-\section*{Week 9: Prompt engineering on Llama 2}
-\addcontentsline{toc}{section}{Week 9: Prompt engineering on Llama 2}
+\section*{Week 9: Augmenting existing data}
+\addcontentsline{toc}{section}{Week 9: Augmenting existing data}
 
-\begin{itemize}
-    \item \textbf{9.1} Prompt engineering on Llama 2
-    \item \textbf{9.2} Taking another look at the training data
-\end{itemize}
-
-\subsection*{9.1 Prompt engineering on Llama 2}
-hi
-
-\subsection*{9.2 Taking another look at the training data}
+\textbf{Taking another look at the training data:} \\
 Other than trying out prompt engineering on Llama 2, I believe there should be another way for training a model to classify the STRIDE categories.
 There should definitely be an (easier) way which just might not be that straightforward.
-The most significant problem is that I do not have enough training data. Upon further research, I found methods to augment more data for NLP. This might not guarantee an improvement in the model's performance but it is worth a try. \\
-Data augmentation methods:
-\begin{itemize}[topsep=0pt]
-    \item \textbf{9.2.1} Back translation
-    \item \textbf{9.2.2} EDA (Easy Data Augmentation)
-    \item \textbf{9.2.3} NLP Albumentation
-    \item \textbf{9.2.4} NLP Augmentation
-\end{itemize}
+The most significant problem is that I do not have enough training data. Upon further research, I found that back-translation is a way to augment more data for NLP. This might not guarantee an improvement in the model's performance but it is worth a try. 
+% \textbf{9.2.2} EDA (Easy Data Augmentation)
 
-
-\subsubsection*{9.2.1 Back translation}
+\subsection*{9.1 Back translation}
 Back translation is a method to augment data by translating the text to another language and then translating it back to the original language. This method is used to generate new sentences that are similar to the original sentences. \\
-Based on the research paper, \href{https://aclanthology.org/2023.findings-acl.518.pdf}{\textit{An Extensive Exploration of Back-Translation in 60 languages}} (Namee et al., 2023), I have selected Afrikaans as the language to translate to and from. Afrikaans is the best language to use because it has the highest BLEU score which means .. ?? \\
+Based on the research paper, \href{https://aclanthology.org/2023.findings-acl.518.pdf}{\textit{An Extensive Exploration of Back-Translation in 60 languages}} (Namee et al., 2023), The sentences are evaulated using BLEU score that ranges from $[0, 100]$. A higher BLEU score indicates the new sentence is more similar to the original in terms of vocabulary, grammar and fluency. \\
+I will select languages that have a large change in BLEU score after back translation as this would mean the new sentence obtained is syntactically different from the original. \\
 \newline
-Firstly, I will do the most basic text cleaning such as removing weblinks, non-english words etc. before passing the text for translation. \\
-Then I the text will be converted into Afrikaans and back into English. The following 2 pages shows text samples before and after back translation. \\
+Firstly, the raw MITRE ATT\&CK description will be subjected to basic text cleaning such as removing weblinks, non-english words etc. before passing the text for translation. \\
+Then the translated text will be converted back into English. The following 2 pages shows text samples before and after back translation; (sentences are colour coded for clarity). \\
 
 \begin{landscape}
     \vspace*{\fill}
@@ -39,38 +25,33 @@ Then I the text will be converted into Afrikaans and back into English. The foll
             \textbf{ } & \textbf{Text example T-T1592.001} \\
             \midrule
             \textbf{Before} &
-            Hardware gather information about the victim s host hardware that can be used during targeting  Information about hardware infrastructure include a variety of details such as types and versions on specific hosts  as well as the presence of additional components that might be indicative of added defensive protections  ex  card biometric readers  dedicated encryption hardware  etc    gather this information in various ways  such as direct collection actions via  Active Scanning    ex  hostnames  server banners  user agent strings  or  Phishing for Information   also compromise sites then include malicious content designed to collect host information from visitors  Information about the hardware infrastructure also be exposed to adversaries via online or other accessible data sets  ex  job postings  network maps  assessment reports  resumes  or purchase invoices   Gathering this information reveal opportunities for other forms of reconnaissance  ex   Search Open Websites Domains   or  Search Open Technical Databases   establishing operational resources  ex   Develop Capabilities   or  Obtain Capabilities   and or initial access  ex   Compromise Hardware Supply Chain   or  Hardware Additions   scanners be used to look for patterns associated with malicious content designed to collect host hardware information from visitors Much of this activity have a very high occurrence and associated false positive rate  as well as potentially taking place outside the visibility of the target organization  making detection difficult for defenders  Detection efforts be focused on related stages of the lifecycle  such as during Initial Access \\
+            \textcolor{blue}{Hardware gather information about the victims host hardware that can be used during targeting}  Information about hardware infrastructure include a variety of details such as types and versions on specific hosts as well as the presence of additional components that might be indicative of added defensive protections  ex  card biometric readers  dedicated encryption hardware  etc    \textcolor{red}{gather this information in various ways  such as direct collection actions via  Active Scanning  ex  hostnames  server banners  user agent strings  or  Phishing for Information}   also compromise sites then include malicious content designed to collect host information from visitors  \textcolor{blue}{Information about the hardware infrastructure also be exposed to adversaries via online or other accessible data sets  ex  job postings  network maps  assessment reports  resumes  or purchase invoices}   Gathering this information reveal opportunities for other forms of reconnaissance  ex   Search Open Websites Domains   or  Search Open Technical Databases   establishing operational resources  ex   Develop Capabilities   or  Obtain Capabilities   and or initial access  ex   Compromise Hardware Supply Chain   or  Hardware Additions   scanners be used to look for patterns associated with malicious content designed to collect host hardware information from visitors \textcolor{red}{Much of this activity have a very high occurrence and associated false positive rate  as well as potentially taking place outside the visibility of the target organization  making detection difficult for defenders}  Detection efforts be focused on related stages of the lifecycle  such as during Initial Access \\
             \midrule
             \textbf{After} &
-            Hardware collects information about the victim's host hardware that can be used during targeting. Information about hardware infrastructure includes a variety of details such as types and versions on specific hosts as well as the presence of additional components that may indicate additional defensive protections eg. biometric readers dedicated encryption hardware, etc. collect this information in various ways, such as direct collection actions via active scanning ex hostnames server banners user agent strings or phishing for information also compromise sites then include malicious content designed to collect host information from visitors Information about the hardware infrastructure is also exposed to adversaries via online or other accessible data sets ex job postings network maps assessment reports resumes or purchase invoices Collecting this information reveals opportunities for other forms of reconnaissance e.g. Search open websites domains or Search open technical databases establishing operational resources e.g. Develop capabilities or Acquire capabilities and or initial access e.g. Compromise hardware supply chain or hardware add-on scanners are used to look for patterns associated with malicious content designed to collect host hardware information from visitors Much of this activity has a very high incidence and associated false positive rate as well as potentially occurring outside the visibility of the target organization, making detection difficult for defenders. Detection efforts are focused on related stages of the life cycle such as during initial access \\
+            \textcolor{blue}{Hardware collects information about the victim's host hardware that can be used during targeting.} Information about hardware infrastructure includes a variety of details such as types and versions on specific hosts as well as the presence of additional components that may indicate additional defensive protections eg. biometric readers dedicated encryption hardware, etc. \textcolor{red}{collect this information in various ways, such as direct collection actions via active scanning ex hostnames server banners user agent strings or phishing for information} also compromise sites then include malicious content designed to collect host information from visitors \textcolor{blue}{Information about the hardware infrastructure is also exposed to adversaries via online or other accessible data sets ex job postings network maps assessment reports resumes or purchase invoices} Collecting this information reveals opportunities for other forms of reconnaissance e.g. Search open websites domains or Search open technical databases establishing operational resources e.g. Develop capabilities or Acquire capabilities and or initial access e.g. Compromise hardware supply chain or hardware add-on scanners are used to look for patterns associated with malicious content designed to collect host hardware information from visitors \textcolor{red}{Much of this activity has a very high incidence and associated false positive rate as well as potentially occurring outside the visibility of the target organization, making detection difficult for defenders.} Detection efforts are focused on related stages of the life cycle such as during initial access \\
             \bottomrule
         \end{tabularx}
     \end{table}
     \vspace*{\fill}
 \end{landscape}
 \begin{landscape}
-    % \vspace*{\fill}
+    \vspace*{\fill}
     \begin{table}[htbp]
-        \caption*{ }
+        \caption*{Back translation (Bengali)}
         \label{crouch}
         \begin{tabularx}{\linewidth}{p{0.1\linewidth}X}
             \toprule
-            \textbf{ } & \textbf{Text example T-T1055.009} \\
+            \textbf{ } & \textbf{Text example T-T1550.004} \\
             \midrule
             \textbf{Before} &
-            Proc Memory inject malicious into processes via the  proc file in order to evade process based defenses as well as possibly elevate privileges  Proc memory injection is a method of executing arbitrary in the address space of a separate live process  Proc memory injection involves enumerating the memory of a process via the  proc file     proc  pid      then crafting a return oriented programming  ROP  payload with available gadgets instructions  Each running process has its own directory  which includes memory mappings  Proc memory injection is commonly performed by overwriting the target processes  stack using memory mappings provided by the  proc file  This information can be used to enumerate offsets  including the stack  and gadgets  or instructions within the program that can be used to build a malicious payload  otherwise hidden by process memory protections such as address space layout randomization  ASLR   Once enumerated  the target processes  memory map within    proc  pid  maps    can be overwritten using dd  Other techniques such as  Dynamic Linker Hijacking   be used to populate a target process with more available gadgets  Similar to  Process Hollowing   proc memory injection target child processes  such as a backgrounded copy of sleep   Running in the context of another process allow access to the process s memory   network resources  and possibly elevated privileges  Execution via proc memory injection also evade detection from security products since the execution is masked under a legitimate process  File monitoring can determine if  proc files are being modified  Users should not have permission to modify these in most cases  Analyze process behavior to determine if a process is performing actions it usually does not  such as opening network connections  reading files  or other suspicious actions that could relate to post compromise behavior \\
+            \textcolor{blue}{Web Session Cookie can use stolen session cookies to authenticate to web applications and services  This technique bypasses some multi factor authentication protocols since the session is already authenticated} Authentication cookies are commonly used in web applications  including cloud based services  after a user has authenticated to the service so credentials are not passed and re authentication does not need to occur as frequently  \textcolor{red}{Cookies are often valid for an extended period of time  even if the web application is not actively used}  After the cookie is obtained through  Steal Web Session Cookie   or  Web Cookies   the then import the cookie into a browser they control and is then able to use the site or application as the user for as long as the session cookie is active  \textcolor{blue}{Once logged into the site  an can access sensitive information  read email  or perform actions that the victim account has permissions to perform} There have been examples of malware targeting session cookies to bypass multi factor authentication s Monitor for anomalous access of websites and cloud based applications by the same user in different locations or by different s that do not match expected configurations \\ 
             \midrule
             \textbf{After} &
-            Proc Memory maliciously injects into processes via the proc file to evade process-based defenses and potentially elevate privileges. process via the proc file proc pid then makes a return-oriented programming ROP payload with available equipment instructions Each running process has its own directory that includes memory maps Proc memory injection is usually performed by overwriting the target processes stack using making memory maps provided by the proc file This information can be used to summarize anomalies including the stack and equipment or instructions within the program that can be used to build a malicious payload that is otherwise hidden by process memory protections such as address space layout random ASLR Once enumerated process the target memory map within proc pid maps can be overwritten using dd Other techniques such as Dynamic Linker Hijacking are used to populate a target process with more available devices Similar to Process Hollowing proc memory injection targets child processes like a background copy of sleep Running in the context of another process allows access to the process's memory network resources and possibly elevated privileges Execution via proc memory injection also evades detection by security products since the execution is under a legitimate process is masked File monitoring can determine if proc files are modified. Users should not have permission to modify it in most cases Analyze process behavior to determine if a process is performing actions it normally would not, such as opening network connections and reading files or other suspicious actions that may be related with post-compromise behavior \\
+            \textcolor{blue}{Web session cookies can use stolen session cookies to authenticate to web applications and services.This technique bypasses some multi-factor authentication protocols since the session is already authenticated.} are not passed and re-authentication is not required because \textcolor{red}{cookies are often valid for an extended period of time even if the web application is not actively being used} after receiving the cookie via a still web session cookie or a web cookie that is then imported. Cookies in a browser they control and then as long as the session cookie is active the user is able to use the site or application once logged in to the site can \textcolor{blue}{access a sensitive information read email or perform actions that the victim account has permission to perform multi} There are examples of malware targeting session cookies to bypass factor authentication \\ 
             \bottomrule
         \end{tabularx}
     \end{table}
-    % \vspace*{\fill}
+    \vspace*{\fill}
 \end{landscape}
 
 As shown, back translation can yield very different results. \\
-
-
-
-\subsubsection*{9.2.4 NLP Augmentation}
-I have always been using a non-contextual text embedding for the training data - Word2Vec model. However, there exist contextual word embeddings which I was unaware of such as BERT language model, ELMo or RoBERTa.
