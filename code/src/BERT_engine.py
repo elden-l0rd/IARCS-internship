@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import pandas as pd
 from sklearn import metrics
 import transformers
@@ -7,17 +8,27 @@ from torch.utils.data import Dataset, DataLoader, RandomSampler, SequentialSampl
 from transformers import BertTokenizer, BertModel, BertConfig
 from torch import cuda
 import ast
+from sklearn.metrics import confusion_matrix, accuracy_score
 
-device = 'cuda' if cuda.is_available() else 'cpu'
+SEED = 64
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
 
-PATH = 'data/external/mitre-classified2.csv'
-df = pd.read_csv(PATH)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
+    torch.backends.cudnn.deterministic = True
+    device = 'cuda'
+else: device = 'cpu'
 
-MAX_LEN = 500
+PATH = 'data/external/raw/raw_capec_data2.xlsx'
+df = pd.read_excel(PATH)
+
+MAX_LEN = 200
 TRAIN_BATCH_SIZE = 8
 VALID_BATCH_SIZE = 4
-EPOCHS = 3
-LEARNING_RATE = 1e-05
+EPOCHS = 4
+LEARNING_RATE = 5e-06
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 class Dataset(Dataset):
@@ -25,19 +36,19 @@ class Dataset(Dataset):
     def __init__(self, dataframe, tokenizer, max_len):
         self.tokenizer = tokenizer
         self.data = dataframe
-        self.NameDesc = dataframe.NameDesc
+        self.Desc = dataframe.Desc
         self.targets = self.data.list.apply(ast.literal_eval).tolist()
         self.max_len = max_len
 
     def __len__(self):
-        return len(self.NameDesc)
+        return len(self.Desc)
 
     def __getitem__(self, index):
-        NameDesc = str(self.NameDesc[index])
-        NameDesc = " ".join(NameDesc.split())
+        Desc = str(self.Desc[index])
+        Desc = " ".join(Desc.split())
 
         inputs = self.tokenizer.encode_plus(
-            NameDesc,
+            Desc,
             None,
             add_special_tokens=True,
             max_length=self.max_len,
@@ -59,7 +70,7 @@ class Dataset(Dataset):
 # Creating the dataset and dataloader for the neural network
 
 train_size = 0.8
-train_dataset=df.sample(frac=train_size,random_state=200)
+train_dataset=df.sample(frac=train_size,random_state=64)
 test_dataset=df.drop(train_dataset.index).reset_index(drop=True)
 train_dataset = train_dataset.reset_index(drop=True)
 
@@ -128,28 +139,36 @@ def train(epoch):
 
 for epoch in range(EPOCHS):
     train(epoch)
-    
-def validation(epoch):
+
+def validation(model, testing_loader):
     model.eval()
-    fin_targets=[]
-    fin_outputs=[]
+    predictions, true_labels = [], []
     with torch.no_grad():
         for _, data in enumerate(testing_loader, 0):
-            ids = data['ids'].to(device, dtype = torch.long)
-            mask = data['mask'].to(device, dtype = torch.long)
-            token_type_ids = data['token_type_ids'].to(device, dtype = torch.long)
-            targets = data['targets'].to(device, dtype = torch.float)
+            ids = data['ids'].to(device, dtype=torch.long)
+            mask = data['mask'].to(device, dtype=torch.long)
+            token_type_ids = data['token_type_ids'].to(device, dtype=torch.long)
+            targets = data['targets'].to(device, dtype=torch.float)
             outputs = model(ids, mask, token_type_ids)
-            fin_targets.extend(targets.cpu().detach().numpy().tolist())
-            fin_outputs.extend(torch.sigmoid(outputs).cpu().detach().numpy().tolist())
-    return fin_outputs, fin_targets 
+            outputs = torch.sigmoid(outputs).cpu().numpy()
+            targets = targets.cpu().numpy()
+            pred_labels = np.argmax(outputs, axis=1)
+            true_labels.extend(np.argmax(targets, axis=1))
+            predictions.extend(pred_labels)
+    return predictions, true_labels
 
-for epoch in range(EPOCHS):
-    outputs, targets = validation(epoch)
-    outputs = np.array(outputs) >= 0.5
-    accuracy = metrics.accuracy_score(targets, outputs)
-    f1_score_micro = metrics.f1_score(targets, outputs, average='micro')
-    f1_score_macro = metrics.f1_score(targets, outputs, average='macro')
-    print(f"Accuracy Score = {accuracy}")
-    print(f"F1 Score (Micro) = {f1_score_micro}")
-    print(f"F1 Score (Macro) = {f1_score_macro}")
+predictions, true_labels = validation(model, testing_loader)
+cm = confusion_matrix(true_labels, predictions)
+print("Confusion Matrix:\n", cm)
+accuracy = accuracy_score(true_labels, predictions)
+print("Accuracy:", accuracy)
+
+'''
+Confusion Matrix:
+ [[ 0  0  1  0 10]
+ [ 0 15  0  0 10]
+ [ 0  6 12  0  7]
+ [ 0  3  3  0  1]
+ [ 0 10  1  0 30]]
+Accuracy: 0.5229357798165137
+'''
