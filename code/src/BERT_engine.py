@@ -9,6 +9,7 @@ from transformers import BertTokenizer, BertModel, BertConfig
 from torch import cuda
 import ast
 from sklearn.metrics import confusion_matrix, accuracy_score
+from modules import preprocessing as pre
 
 SEED = 64
 random.seed(SEED)
@@ -21,14 +22,15 @@ if torch.cuda.is_available():
     device = 'cuda'
 else: device = 'cpu'
 
-PATH = 'data/external/raw/raw_capec_data2.xlsx'
-df = pd.read_excel(PATH)
+# PATH = 'data/external/raw/raw_capec_data2.xlsx'
+PATH = 'data/external/mitre-classified2.csv'
+df = pd.read_csv(PATH)
 
 MAX_LEN = 200
 TRAIN_BATCH_SIZE = 8
 VALID_BATCH_SIZE = 4
-EPOCHS = 4
-LEARNING_RATE = 5e-06
+EPOCHS = 3
+LEARNING_RATE = 1e-04
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 class Dataset(Dataset):
@@ -36,19 +38,19 @@ class Dataset(Dataset):
     def __init__(self, dataframe, tokenizer, max_len):
         self.tokenizer = tokenizer
         self.data = dataframe
-        self.Desc = dataframe.Desc
+        self.NameDesc = dataframe.NameDesc
         self.targets = self.data.list.apply(ast.literal_eval).tolist()
         self.max_len = max_len
 
     def __len__(self):
-        return len(self.Desc)
+        return len(self.NameDesc)
 
     def __getitem__(self, index):
-        Desc = str(self.Desc[index])
-        Desc = " ".join(Desc.split())
+        NameDesc = str(self.NameDesc[index])
+        NameDesc = " ".join(NameDesc.split())
 
         inputs = self.tokenizer.encode_plus(
-            Desc,
+            NameDesc,
             None,
             add_special_tokens=True,
             max_length=self.max_len,
@@ -66,13 +68,15 @@ class Dataset(Dataset):
             'token_type_ids': torch.tensor(token_type_ids, dtype=torch.long),
             'targets': torch.tensor(self.targets[index], dtype=torch.float)
         }
-        
-# Creating the dataset and dataloader for the neural network
 
+
+df = pre.text_preprocessing(df)
 train_size = 0.8
-train_dataset=df.sample(frac=train_size,random_state=64)
-test_dataset=df.drop(train_dataset.index).reset_index(drop=True)
+train_dataset, test_dataset = pre.split_data(df, train_size, 1, 0)
+# train_dataset=df.sample(frac=train_size,random_state=64)
+# test_dataset=df.drop(train_dataset.index).reset_index(drop=True)
 train_dataset = train_dataset.reset_index(drop=True)
+test_dataset = test_dataset.reset_index(drop=True)
 
 
 print("FULL Dataset: {}".format(df.shape))
@@ -158,17 +162,20 @@ def validation(model, testing_loader):
     return predictions, true_labels
 
 predictions, true_labels = validation(model, testing_loader)
-cm = confusion_matrix(true_labels, predictions)
+cm = confusion_matrix(true_labels, predictions, labels=[0, 1, 2, 3, 4, 5])
 print("Confusion Matrix:\n", cm)
 accuracy = accuracy_score(true_labels, predictions)
 print("Accuracy:", accuracy)
+print("Unique values in predictions:", np.unique(predictions))
+print("Unique values in true labels:", np.unique(true_labels))
 
 '''
 Confusion Matrix:
- [[ 0  0  1  0 10]
- [ 0 15  0  0 10]
- [ 0  6 12  0  7]
- [ 0  3  3  0  1]
- [ 0 10  1  0 30]]
-Accuracy: 0.5229357798165137
+ [[ 0  0  0  6  0  3]
+ [ 0  0  0  6  0  9]
+ [ 0  0  0  0  0  0]
+ [ 0  0  0 23  0  7]
+ [ 0  0  0  0  0  1]
+ [ 0  0  0  4  0 38]]
+Accuracy: 0.6288659793814433
 '''

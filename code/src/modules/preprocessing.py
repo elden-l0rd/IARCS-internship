@@ -13,22 +13,22 @@ from sklearn.model_selection import train_test_split
 def basic_processing(df):
     words_to_remove = ["e.g.", "code", "may", "attack", "system", "adversary", "Adversaries"]
     for word in words_to_remove:
-        df['NameDesc'] = df['NameDesc'].apply(lambda x: x.replace(word, ''))
+        df['Desc'] = df['Desc'].apply(lambda x: str(x).replace(word, ''))
     for word in words_to_remove:
-        df['NameDesc'] = df['NameDesc'].apply(lambda x: re.sub(r'\b' + re.escape(word) + r'\b', '', x))
+        df['Desc'] = df['Desc'].apply(lambda x: re.sub(r'\b' + re.escape(word) + r'\b', '', x))
 
-    # df['NameDesc'] = df['NameDesc'].str.replace(r"\b(" + "|".join(words_to_remove) + r")\b", "", regex=True)
-    df['NameDesc'] = df['NameDesc'].str.replace("<br><br>", "", regex=True)
-    df['NameDesc'] = df['NameDesc'].str.replace("\(Citation:.*?\)", "", regex=True)
-    df['NameDesc'] = df['NameDesc'].str.replace("http\S+", "", regex=True)
-    df['NameDesc'] = df['NameDesc'].str.replace("  +", " ", regex=True)
-    df['NameDesc'] = df['NameDesc'].str.replace("[^A-Za-z]", " ", regex=True)
+    # df['Desc'] = df['Desc'].str.replace(r"\b(" + "|".join(words_to_remove) + r")\b", "", regex=True)
+    df['Desc'] = df['Desc'].str.replace("<br><br>", "", regex=True)
+    df['Desc'] = df['Desc'].str.replace("\(Citation:.*?\)", "", regex=True)
+    df['Desc'] = df['Desc'].str.replace("http\S+", "", regex=True)
+    df['Desc'] = df['Desc'].str.replace("  +", " ", regex=True)
+    df['Desc'] = df['Desc'].str.replace("[^A-Za-z]", " ", regex=True)
     return df
 
 def rm_stopwords(df):
     stop_words = set(stopwords.words('english'))
-    df['NameDesc'] = df['NameDesc'].apply(lambda x: [word for word in x if word not in stop_words])
-    # print(f"Removed stopwords:\n {df.head(3).NameDesc}\n")
+    df['Desc'] = df['Desc'].apply(lambda x: [word for word in x if word not in stop_words])
+    # print(f"Removed stopwords:\n {df.head(3).Desc}\n")
     return df
 
 def lemmatize(df):
@@ -43,21 +43,21 @@ def lemmatize(df):
             return tag_dict.get(tag, wordnet.NOUN)
         lemmas = [lemmatizer.lemmatize(token, get_wordnet_pos(token)) for token in tokens]
         return lemmas
-    df['NameDesc'] = df['NameDesc'].apply(lambda x: lemmatize_tokens(x))
-    # print(f"Lemmatized words:\n {df.head(3).NameDesc}")
+    df['Desc'] = df['Desc'].apply(lambda x: lemmatize_tokens(x))
+    # print(f"Lemmatized words:\n {df.head(3).Desc}")
     return df
 
 def text_preprocessing(df):
     basic_processing(df)
-    df['NameDesc'] = df['NameDesc'].apply(lambda x: word_tokenize(x))
+    df['Desc'] = df['Desc'].apply(lambda x: word_tokenize(x))
     rm_stopwords(df)
     lemmatize(df)
 
     k = random.randint(0, len(df)) # arbitary row to show that words have been removed
-    print(f"Bef rm duplicates: {len(df.iloc[k]['NameDesc'])}")
-    df['NameDesc'] = df['NameDesc'].apply(lambda x: list(set([word.lower() for word in x]))) # to remove duplicates
-    print(f"Aft rm duplicates: {len(df.iloc[k]['NameDesc'])}")
-    print(f"Removed duplicates:\n {df.head(3).NameDesc}")
+    print(f"Bef rm duplicates: {len(df.iloc[k]['Desc'])}")
+    df['Desc'] = df['Desc'].apply(lambda x: list(set([word.lower() for word in x]))) # to remove duplicates
+    print(f"Aft rm duplicates: {len(df.iloc[k]['Desc'])}")
+    print(f"Removed duplicates:\n {df.head(3).Desc}")
 
     print("=========================================")
     return df
